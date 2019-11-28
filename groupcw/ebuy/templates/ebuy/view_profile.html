@@ -1,0 +1,136 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+
+<head>
+  <title>Add Items</title>
+</head>
+
+
+{% if loggedIn %}
+<h3>Details for {{ user.surname }}, {{ user.name }}</h3>
+<div class="table-bordered">
+    <div class="row">
+        <div class=col-sm-5><label for="dateOfBirth">Date of birth: </label></div>
+        <div class=col-sm-5><p id="dateOfBirth">{{ user.dob|date:"d M Y" }}</p></div>
+    </div>
+    <div class="row">
+        <div class=col-sm-5><label for="email">Email: </label></div>
+        <div class=col-sm-5><p id="email">{{ user.email }}</p></div>
+    </div>
+    <div class="row">
+        <div class=col-sm-5><label for="banknum">Account no: </label></div>
+        <div class=col-sm-5><p id="email">{{ user.bankNo }}</p></div>
+    </div>
+    <div class="row">
+        <div class=col-sm-5><label for="phonenum">Phone no: </label></div>
+        <div class=col-sm-5><p id="email">{{ user.phoneNo }}</p></div>
+    </div>
+</div>
+
+<div class="table-bordered"><br />
+<h4>Questions asked</h4>
+	{% for question in questions %}
+	<b>{{ question.message }}</b>
+  	<form id="questionResponseForm{{ question.id }}">
+      {% csrf_token %}
+  		<input type="hidden" name="questionid" value="{{ question.id }}" />
+  		<input type="text" name="message" placeholder="Respond to user..." />
+      <input type="button" class="btn btn-success" value="Submit" onclick="submitresponse({{ question.id }})" />
+    </form>
+    <br />	
+	{% endfor %}
+</div>
+
+<br>
+<input type="button" class="btn btn-info" value="Your Auctions" id="auctionbutton" onclick="getUserAuctions()"/>
+<div id="userauction_container" style="visibility:hidden;">
+    <p id="loadstatus"></p>
+    <ul id="auctionlist"></ul>
+</div>
+{% else %}
+<h3>Uh oh!</h3>
+<p class='alert-info'>{{ message }}
+	<a href="/loginpage">Click to log in...</a>
+</p>
+<!-- <div class="table-bordered">
+    <div class="row">
+        <div class=col-sm-5><label for="email">Email: </label></div>
+        <div class=col-sm-5></div>
+    </div>
+    <div class="row">
+        <div class=col-sm-5><label for="banknum">Account no: </label></div>
+        <div class=col-sm-5></div>
+    </div>
+    <div class="row">
+        <div class=col-sm-5><label for="phonenum">Phone no: </label></div>
+        <div class=col-sm-5></div>
+    </div> -->
+</div>
+{% endif %}
+<script type="text/javascript">
+		getUserAuctions()
+    function getUserAuctions()
+    {
+        $.ajax({
+                        url : "/profile/get_auction/{{ user.id }}",
+                        type: 'GET',
+                        data: null,
+                        success: logSuccess,
+                        error: printError1,
+                })
+        $("#userauction_container").css("visibility", "visible");
+    }
+
+    function logSuccess(response)
+    {
+        console.log("Succesfully completed request.\nMessage: "+response.message);
+        console.log("Items retrieved: "+response.items)
+        if ($("#auctionlist").children().length < 1)
+        {
+            console.log("in if statement");
+            for(var i = 0; i < response.items.length; i++)
+            {
+                $("#auctionlist").append($("<li>").append("<p><a href='/auction/" + response.items[i].id + "'>Auction #"+response.items[i].id+"</a></p>"));
+            }
+            $("#loadstatus").attr("class", "alert-info");
+            $("#loadstatus").val(response.message);
+        }
+        else
+        {
+            $("#loadstatus").val("");
+        }
+    }
+
+    function printError1(req, status, err)
+    {
+        console.log(status+"\nReason: "+err);
+    }
+
+    function submitresponse(formid)
+    {
+        $.ajax({
+            url : "/messagetocustomer/",
+            type: 'POST',
+            data: $('#questionResponseForm'+formid).serializeArray(),
+            success: responsesuccess,
+            error: responseerror,
+        })
+        $("#userauction_container").css("visibility", "visible");
+    }
+    function responseerror(req, status, err)
+    {
+        alert(status+"\nReason: "+err);
+        console.log(status+"\nReason: "+err);
+    }
+    function responsesuccess(response)
+    {
+      alert(response.status)
+      console.log(response.status)
+    }
+
+
+</script>
+{% endblock %}

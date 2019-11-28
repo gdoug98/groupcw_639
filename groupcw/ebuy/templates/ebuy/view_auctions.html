@@ -1,0 +1,74 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+
+<head>
+  <title>View Auctions</title>
+</head>
+
+<script type="text/javascript">
+	function searchforauctions(){
+	{
+		console.log("inside process item")
+		$.ajax({
+			url : "/searchauction/",
+			type: 'POST',
+			data: $('#auctionsearchform').serializeArray(),
+			success: logSuccess,
+			error: printError1,
+			})
+		}
+		function printError1( req, status, err )
+		{
+			console.log('Something went wrong', status, err)
+		}
+		function logSuccess(response)
+		{
+      auctions = response.filteredauctions
+      items = response.filtereditems
+      var auctiondict = {}
+      for (var i=0; i< auctions.length; i++){
+        auctiondict[auctions[i].auctionitem_id] = auctions[i].id
+      }
+      $("#filtereditemsdisplay").empty()
+      items.forEach(function(item) {
+        if(typeof auctiondict[item.id] != "undefined"){
+        text = "<ul><li><a href='/auction/"+ auctiondict[item.id] + "''>Auction #" + auctiondict[item.id] + "(Auctioning " + item.name + " )</a></li></ul>"
+        $("#filtereditemsdisplay").append(text)
+      }
+      })
+    }
+	}
+</script>
+
+
+
+
+{% if loggedIn %}
+<form id="auctionsearchform" class="form-inline">
+    {% csrf_token %}
+    <input class="form-control mr-sm-2" placeholder="Search Auctions" name="auctionname" >
+    <input type="button" onclick="searchforauctions()" class="btn btn-dark" value="Search" />
+</form>
+<br />
+<div id="filtereditemsdisplay"></div>
+<br />
+<h3>All active auctions</h3>
+<ul id="auctionlist">
+{% for auction in auction_list %}
+	<li><p><a href="\auction\{{ auction.id }}">Auction #{{ auction.id }} (Auctioning {{ auction.auctionitem.name }})</a></p></li>
+{% endfor %}
+
+<input type="button" class="btn btn-success" value="Create New Auction" onclick="window.location.href='/addauctionpage'">
+<input type="button" class="btn btn-info" value="Closed Auctions" onclick="window.location.href='/closedauctions'">
+<input type="button" class="btn btn-primary" value="Your Auctions" onclick="window.location.href='/profile'">
+
+{% else %}
+<p><a href="/loginpage">Click me please: You must be logged in to view the auctions and access other features...</a></p>
+{% endif %}
+
+</ul>
+
+{% endblock %}

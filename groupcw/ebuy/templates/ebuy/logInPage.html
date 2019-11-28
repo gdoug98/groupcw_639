@@ -1,0 +1,106 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+<head><title>Login</title></head>
+{{ status }}
+<!--form for logging in-->
+<form id=loginform>
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-md-5"><label for="email">Email: </label></div>
+		<div class="col-md-5"><input type="text" name="email" id="Email" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="password">Password: </label></div>
+		<div class="col-md-5"><input type="password" name="password" id="passwordID" /></div>
+	</div>
+	<input type="button" onclick="checkLoginForm()" value="Login" id="submitForm" class="btn btn-success" />
+	<input type="reset" class="btn btn-warning" />
+</form>
+<br>
+
+<p class='btn-default'><a href="/createprofile">New to eBuy? Sign up!</a></p> <!--link to reg form-->
+
+<!--script for submitting login form using ajax and basic frontend form validation-->
+<script type="text/javascript">
+	function submitLoginForm(){
+	{
+		console.log("inside process item")
+		$.ajax({
+			url : "/submitlogin/",
+			type: 'POST',
+			data: $('#loginform').serializeArray(),
+			success: logSuccess,
+			error: printError1,
+			})
+		}
+		function printError1( req, status, err )
+		{
+			console.log('Something went wrnong', status, err)
+		}
+		function logSuccess(response)
+		{
+			if (response.status == "Valid User")
+			{
+				alert("You have logged in successfully!")
+				$(location).attr('href', '/index')
+			}
+			else{
+				console.log(response.status)
+			}
+		}
+	}
+	//check if user login fields have been fulfilled and return error if they haven't been
+	function checkLoginForm()
+	{
+		var fieldIDs = ["Email", "passwordID"]
+		var fieldErrors = ["email address", "password"]
+
+		for(var i=0; i<fieldIDs.length; i++)
+		{
+			var temp =  $("#" + fieldIDs[i]).val()
+			if(isEmpty(temp))
+			{
+				outputError(fieldErrors[i])
+				return false
+			}
+		}
+
+		//return error if email is in wrong format
+		if(checkEmail($("#Email").val()))
+		{
+			alert("Please enter email address in the correct format!")
+			return false
+		}
+
+		submitLoginForm() //ajax function call here
+	}
+
+	//return true if the email address entered is in the incorrect format by using regular expression
+	function checkEmail(mail)
+	{
+		var atpos=mail.indexOf("@");
+		var dotpos=mail.lastIndexOf(".");
+
+		if(atpos<1 || dotpos<atpos+2 || dotpos+2>=mail.length)
+		{
+			return true;
+		}
+	}
+
+	//output specific error message
+	function outputError(fieldName)
+	{
+		alert("Error: Please enter a " + fieldName + "!")
+	}
+
+	//return true if a field has not been filled in
+	function isEmpty(fieldName)
+	{
+		if(fieldName==null || fieldName=="") {return true}
+	}
+</script>
+
+{% endblock %}

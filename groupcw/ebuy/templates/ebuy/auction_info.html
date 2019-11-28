@@ -1,0 +1,163 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+
+<head>
+  <title>Auction Details</title>
+  <style>
+  	table
+  	{
+  		text-align: center;
+  	}
+  	.itemImageStyle
+		{
+			width: 200px;
+			height: 195px;
+		}
+  </style>
+</head>
+  <script type="text/javascript">
+
+  	function submitQuestion()
+		{
+			console.log("inside process bid")
+			$.ajax({
+				url : "/messagetoowner/",
+				type: 'POST',
+				data: $("#questionForm").serialize(),
+				success: successfulQuestion,
+				error: unsuccesfulQuestion,
+			})
+    }
+		function successfulQuestion(response)
+		{
+      alert(response.status)
+      window.location.reload()
+		}
+    function unsuccesfulQuestion( req, status, err )
+    {
+      console.log('Something went wrong', status, err)
+    }
+  </script>
+
+<h3>Auction Details</h3>
+<br>
+<div class="table-bordered">
+    <div class="row">
+        <div class="col-sm-6"><label for="auctionnum">Auction #: </label></div>
+        <div class="col-sm-6"><p id="auctionnum">{{ auction.id }}</p></div>
+    </div>
+    <div class="row">
+            <div class="col-sm-6"><label for="auctionsstart">Start Date: </label></div>
+            <div class="col-sm-6"><p id="auctionsstart">{{ auction.starts }}</p></div>
+    </div>
+    <div class="row">
+            <div class="col-sm-6"><label for="auctionend">End Date: </label></div>
+            <div class="col-sm-6"><p id="auctionend">{{ auction.ends }}</p></div>
+    </div>
+    <div class="row">
+            <div class="col-sm-6"><label for="auctionitem">Auctioning: </label></div>
+            <div class="col-sm-6"><p id="auctionitem">{{ auctionitem.name }}</p></div>
+    </div>
+    <div class="row">
+            <div class="col-sm-6"><label for="auctionitem">Image: </label></div>
+            <div class="col-sm-6"><img src="/media/{{ auctionitem.image }}" class="itemImageStyle" id="auctionitem" /></div>
+    </div>
+</div><br />
+
+<div id="status"></div>
+
+<form id="questionForm">
+  {% csrf_token %}
+	<input type="hidden" value="{{ auction.id }}" name="auctionid" />
+	<input type="text" id="questionMessage" name="message" placeholder="Any questions?" />
+	<input type="button" class="btn-success" value="Submit" onclick="submitQuestion()" />
+</form>
+<div id="statuscontainer">
+  <p id="status"></p>
+</div>
+
+<!--outputting questions and responses-->
+<div class="table-bordered">
+<table style='table {text-align: center;}' width="100%" class='table-striped table-hover'>
+	<tr>
+		<th>Messages</th>
+		<th>Responses</th>
+	</tr>
+{% for message in messages %}
+	<tr>
+		<td>{{ message.message }}</td>
+		<td>{{ message.response}}</td>
+	</tr>
+{% endfor %}
+</table>
+</div><br /><br />
+
+<!--making a bid-->
+
+<input type="button" class="btn-primary" id="addbid" value="Make a bid" /><br /><br />
+<div style="display: none;" class="form" id="bidform">
+        <div class="row">
+                <label for="bidamount"><p style="color: lightskyblue;">How much would you like to bid?</p></label>
+                <input type="hidden" name="auctionID" value="{{ auction.id }}">
+                <input type="hidden" name="userID" value="{{ auctionitem.useritem }}">
+                <input name="amount" id="auctionAmount" type="number" />
+        </div>
+        <input type="button" value="Create Bid" onclick="submitBid()" />
+</div>
+
+
+
+<!--script for submitting login form using ajax and basic frontend form validation-->
+<script type="text/javascript">
+	$("#addbid").click(function()
+	{
+		console.log("In click handler.");
+		$("#bidform").css("display", "block");
+	})
+
+	function submitBid(){
+	{
+		if(isEmpty($("#auctionAmount").val()))
+		{
+			alert("Please enter the amount you would like to bid!")
+			return false
+		}
+
+		console.log("inside process bid")
+		$.ajax({
+			url : "/bid/submit/",
+			type: 'POST',
+			data: $("#bidform :input").serializeArray(),
+			success: logSuccess,
+			error: printError1,
+		})
+	}
+
+	function printError1( req, status, err )
+	{
+		console.log('Something went wrong', status, err)
+	}
+	function logSuccess(response)
+	{
+		if(response.redirect)
+		{
+			window.location.href = response.redirect
+		}
+		else
+		{
+			$("#statuscontainer #status").text(response.message+". Amount bid: "+response.amount);
+		}
+	}
+	}
+
+	//return true if a field has not been filled in
+	function isEmpty(fieldName)
+	{
+		if(fieldName==null || fieldName=="") {return true}
+	}
+</script>
+
+{% endblock %}

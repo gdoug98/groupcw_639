@@ -1,0 +1,66 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+
+<head>
+	<title>List Items</title>
+	<style type="text/css">
+		table {text-align: center;}
+		.itemImageStyle
+		{
+			width: 350px;
+			height: 350px;
+		}
+	</style>
+	<script type="text/javascript">
+		//attributes required for request
+		
+		$(document).ready()
+		{
+			$.ajax(
+			{
+				url: '/listitems/',
+				type: 'GET',
+				dataType: 'json',
+				success: getItems,
+				error: logError,
+			})
+		}
+		
+		function getItems(response)
+		{		
+			console.log("Successfully fetched data")
+			var outputText = "<table border='1' style='table {text-align: center;}' class='table-striped table-hover'><tr>" + 
+			"<th>Item ID</th> <th>Name</th>	<th>Condition</th>	<th>Description</th>	<th>Image</th>" +
+			"</tr>"
+			
+			for(var i=0; i<response.items.length; i++)
+			{
+				outputText += "<tr>"
+				outputText += "<td>" + response.items[i].id + "</td>"
+				outputText += "<td>" + response.items[i].name + "</td>"
+				outputText += "<td>" + response.items[i].condition + "</td>"
+				outputText += "<td>" + response.items[i].description + "</td>"
+				outputText += "<td><img src='/media/" + response.items[i].image + "' class='itemImageStyle' /></td>"
+				outputText += "</tr>"
+			}
+			outputText += "</table>"
+			
+			$('#itemListDiv').append(outputText)
+		}
+		
+		function logError(req, status, err)
+		{
+			console.log('Something went wrong', status, err)
+		}
+		
+	</script>
+</head>
+
+<!--where the information fetched from the data will be listed-->
+<h2>Items</h2>
+<div id="itemListDiv"></div><br />
+<input type="button" class="btn btn-primary" value="Add Item" onclick="window.location.href='/additems'">
+{% endblock %}

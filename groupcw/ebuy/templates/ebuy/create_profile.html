@@ -1,0 +1,132 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+<head>
+	<title>Create Profile</title>
+	
+	<!--script for submitting reg form using post ajax call-->
+	<script>
+		function submituserinfo()
+		{
+			$.ajax({
+				url : "/createuser/",
+				method: 'POST',
+				dataType: 'json',
+				data: $('#registerform').serializeArray(),
+				success: logSuccess,
+				error: printError1,
+			})
+			}
+			function printError1( req, status, err )
+			{
+				console.log('Something went wrong', status, err)
+			}
+			function logSuccess(response)
+			{
+				//output whether or not profile is created successfully (check if email exists)
+				$("#successMessage").html("<br />Status: " + response.Status).css("color", "red")
+				console.log("Successfully created user: " + response.userID) 
+			}
+	</script>
+</head>
+
+<!--form for creating an account-->
+<form id="registerform" action="">
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-md-5"><label for="firstName">First Name: </label></div>
+		<div class="col-md-5"><input type="text" name="name" id="firstName" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="lastName">Last Name: </label></div>
+		<div class="col-md-5"><input type="text" name="surname" id="lastName" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="dateOfBirth">DOB: </label></div>
+		<div class="col-md-5"><input type="date" name="DOB" id="dateOfBirth" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="email">Email: </label></div>
+		<div class="col-md-5"><input type="text" name="email" id="email" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="pass"> Password: </label></div>
+		<div class="col-md-5"><input type="password" name="password" id="pass" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="email"> Bank Number: </label></div>
+		<div class="col-md-5"><input type="number" name="bankno" id="bank" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="email"> Phone Number: </label></div>
+		<div class="col-md-5"><input type="text" name="phoneno" id="phone" /></div>
+	</div><br />
+	<input type="button" onclick='checkRegistrationForm()' value="Register" class="btn btn-success" />
+	<input type="reset" onclick='resetRegistrationForm()' class="btn btn-warning" />
+	
+	<div id="successMessage"></div>
+</form>
+<br>
+
+<!--script containing basic frontend form validation-->
+<script type="text/javascript">
+	//check if registration fields have been fulfilled and return error if they haven't been
+	function checkRegistrationForm()
+	{			
+		var fieldIDs = ["firstName", "lastName", "dateOfBirth", "email", "pass", "bank", "phone"]
+		var fieldError = [" first name", " last name", " date of birth", "n email address", " password", " bank number", " phone number"]
+		
+		for(var i=0; i<fieldIDs.length; i++)
+		{
+			var temp =  $("#" + fieldIDs[i]).val()
+			if(isEmpty(temp))
+			{
+				outputError(fieldError[i])
+				return false
+			}
+		}
+		
+		if(checkEmail($("#email").val()))
+		{
+			alert("Please enter email address in the correct format!")
+			return false						
+		}
+		
+		submituserinfo() //call ajax once fields have been fulfilled
+	}		
+	
+	//return true if the email address entered is in the incorrect format by using regular expression
+	function checkEmail(mail)
+	{
+		var atpos=mail.indexOf("@");
+		var dotpos=mail.lastIndexOf(".");
+		
+		if(atpos<1 || dotpos<atpos+2 || dotpos+2>=mail.length)
+		{
+			return true;
+		}
+	}
+	
+	//output specific error message
+	function outputError(fieldName) 
+	{
+		alert("Error: Please enter a" + fieldName + "!")
+	}
+	
+	//return true if a field has not been filled in
+	function isEmpty(fieldName)
+	{
+		if(fieldName==null || fieldName=="") {return true}
+	}
+	
+	//remove the response message when the reset button is clicked
+	function resetRegistrationForm()
+	{
+		$("#successMessage").html("")
+	}
+	
+</script>
+
+{% endblock %}

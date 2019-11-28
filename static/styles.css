@@ -1,0 +1,59 @@
+#container
+{
+	border: 0px solid #000;
+	margin: 0 auto;
+}
+
+#content
+{	
+	border: 0px solid #000;	
+	padding: 5px;
+}
+
+#footer
+{
+	border: 0px solid #000;
+	color: #a29595;
+	background-color: #343A40;
+	padding: 10px;
+	text-align: center;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+}
+
+/*.responsiveImage aside 
+{
+	width: 33.33%;
+	float: left;
+}*/
+
+/*fixed menu bar position*/
+.fixedMenuHeader
+{
+	/*position: fixed;
+	top: 0;
+	width: 100%;*/
+}
+.fixedMenuHeader+ .content {padding-top: 102px;}
+
+img, .responsiveImage
+{
+	width: 100%;
+	height: 100%;
+}
+
+/*when the screen size is 960px or less, the image will react*/
+@media screen and (max-width: 961px) 
+{
+	#container, #footer
+	{
+		width: 100%;
+	}
+	
+	.responsiveImage
+	{
+		display: block;
+		margin: 10px;
+	}
+}

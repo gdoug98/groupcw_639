@@ -1,0 +1,98 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+
+<head>
+	<title>Create Auction</title>
+	<script type="text/javascript">
+		function submitauctioninfo()
+		{
+			validateCreateAuctionsForm() //run validation first
+			console.log("inside submitauctioninfo")
+			$.ajax({
+				url : "/createauction/",
+				method: 'POST',
+				dataType: 'json',
+				data: $('#auctionform').serialize(),
+				success: logSuccess,
+				error: printError1,
+			})
+		}
+		
+		function printError1( req, status, err )
+		{
+			setMessageColour()
+			$('#responseMessage').html("<b>Item may already up for auction</b>")
+			console.log('Something went wrong', status, err)
+		}
+		function logSuccess(response)
+		{
+			setMessageColour()
+			$('#responseMessage').html("<b>Successfully created auction for item: " + response.auctionitem + "</b>")
+			console.log("Successfully created auction for item: " + response.auctionitem)
+		}
+		
+		function setMessageColour() {$('#responseMessage').css("color", "red")}
+		
+		
+		//check if add item fields have been fulfilled and return error if they haven't been
+		function validateCreateAuctionsForm()
+		{
+			var fieldIDs = ["Starts", "Ends"]
+			var fieldErrors = [" start date", "n end date"]
+
+			for(var i=0; i<fieldIDs.length; i++)
+			{
+				var temp =  $("#" + fieldIDs[i]).val()
+				if(!(temp))
+				{
+					outputError(fieldErrors[i])
+					return false
+				}
+			}
+		}
+					
+		//output specific error message
+		function outputError(fieldName)
+		{
+			alert("Error: Please enter a" + fieldName + "!")
+		}
+
+		//return true if a field has not been filled in
+		function isEmpty(fieldName)
+		{
+			if(fieldName==null || fieldName=="") {return true}
+		}
+	</script>	
+</head>
+
+
+<div id="responseMessage"></div>
+<!--form for creating auction-->
+<form id="auctionform">
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-md-5"><label for="firstName">Start Date: </label></div>
+		<div class="col-md-5"><input type="date" name="starts" id="Starts" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="lastName"> End Date: </label></div>
+		<div class="col-md-5"><input type="date" name="ends" id="Ends" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="itemID"> Item: </label></div>
+		<div class="col-md-5"><select name="itemID" id="itemID">
+			{% for item in myitems %}
+			<option value="{{ item.id }}">{{ item.name }}</option>
+			{% endfor %}
+		</select></div>
+	</div>
+	<br />
+	<input type="button" onclick='submitauctioninfo()' value="Create Auction" class="btn btn-success" />
+	<input type="reset" class="btn btn-warning" />
+</form>
+<br>
+
+{% endblock %}

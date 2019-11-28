@@ -1,0 +1,121 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+
+<head>
+	<title>Add Items</title>
+	<script type="text/javascript">
+		//script for adding an item to the db using a post ajax call
+		function processAddItem()
+		{
+			console.log("inside process item")
+			let addForm = document.getElementById('addItemForm')
+			let formData = new FormData(addForm)
+			$.ajax({
+				url : "/createitem/",
+				method: 'POST',
+				dataType: 'json',
+				data: formData,
+				processData: false,
+				contentType: false,
+				success: logSuccess,
+				error: printError1,
+			})
+		}
+		function printError1( req, status, err )
+		{
+			console.log('Something went wrong', status, err)
+		}
+		function logSuccess(response)
+		{			
+			//change the colour of the status message and output the status of the response
+			$('#status').css("color", "red")
+			$('#status').html("Status: " + response.status + "<br />")
+			
+			//output the item that has been created if the user is logged in
+			var nameOfUser = response.belongsTo
+			if(nameOfUser != null) 
+			{
+				$('#status').append("Successfully created item " + response.itemname + "<br />")				
+				$('#status').append("<a href='/addauctionpage'>Click here to create an auction for the item you just created</a><br /><hr />")
+			}			
+			console.log("Successfully created item " + response.itemname + " which belongs to user " + response.belongsTo)
+		}
+	</script>
+</head>
+<div id="status"></div>
+<form id="addItemForm" enctype='multipart/form-data'>
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-md-5"><label for="itemName">Item Name: </label></div>
+		<div class="col-md-5"><input type="text" name='itemname' id="itemName" /></div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="itemDescription">Item Description: </label></div>
+		<div class="col-md-5">
+			<textarea name="itemdescription" id="itemDescription"></textarea>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="itemcondition">Item Condition: </label></div>
+		<div class="col-md-5">
+<!--			<input type="text" name='itemcondition' id="itemCondition" />-->
+			<select name='itemcondition' id="itemCondition">
+				<option value="New">New</option>
+				<option value="Used">Used</option>
+				<option value="Refurbished">Refurbished</option>	
+			</select>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-5"><label for="itemcondition">Image: </label></div>
+		<div class="col-md-5">
+			<input type="file" name="image" />		
+		</div>
+	</div>
+	
+	
+	<br />
+	<input type="button" value="Add Item" onclick="validateAddItemsForm()" class="btn btn-success" />
+	<input type="reset" class="btn btn-warning" />
+</form>
+
+<br />
+
+
+<script type="text/javascript">
+	//check if add item fields have been fulfilled and return error if they haven't been
+	function validateAddItemsForm()
+	{
+		var fieldIDs = ["itemName", "itemDescription", "itemCondition"]
+		var fieldErrors = ["item name", "item description", "item condition"]
+
+		for(var i=0; i<fieldIDs.length; i++)
+		{
+			var temp =  $("#" + fieldIDs[i]).val()
+			if(isEmpty(temp))
+			{
+				outputError(fieldErrors[i])
+				return false
+			}
+		}
+
+		processAddItem() //call ajax once fields have been fulfilled
+	}
+
+	//output specific error message
+	function outputError(fieldName)
+	{
+		alert("Error: Please enter an " + fieldName + "!")
+	}
+
+	//return true if a field has not been filled in
+	function isEmpty(fieldName)
+	{
+		if(fieldName==null || fieldName=="") {return true}
+	}
+</script>
+
+{% endblock %}

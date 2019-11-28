@@ -1,0 +1,20 @@
+{% extends 'ebuy/base_layout.html' %}
+
+
+<!--only thing to define individually is the main content area of each page-->
+{% block mainContent %}
+
+<head>
+	<title>Closed Auctions</title>
+</head>
+
+
+<h2>Closed auctions</h2>
+<div class="table-bordered">
+<table width="100%" class='table table-striped table-hover'>
+{% for field in auctions %}
+	<tr><td>{{ field }}</td></tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{%load static from staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/styles.css" />
+  <link rel="icon" href="/static/images/cash.ico/" />
+</head>
+<body>
+
+
+
+<div id="container">
+
+
+	<nav class="navbar navbar-expand-md bg-dark navbar-dark" id="menuHeader">
+		<!-- left icon and title -->
+		<a class="navbar-brand" href="/index">
+<!--		<img src="https://cdn0.iconfinder.com/data/icons/business-set-1-4/100/auction_bid-512.png" width="30" height="30" class="d-inline-block align-top" alt="">-->
+		eBUY
+		</a>
+		<!-- button to collapse -->
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+		  <span class="navbar-toggler-icon"></span>
+		</button>
+		<!-- collapsable list -->
+		<div class="collapse navbar-collapse" id="collapsibleNavbar">
+			<div id="generateMenuItems"></div>
+		  <ul class="navbar-nav">
+		    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Auctions</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="/auction/">All Auctions</a>
+          <a class="dropdown-item" href="/addauctionpage">Create New Auction</a>
+          <a class="dropdown-item" href="/closedauctions">Closed Auctions</a>
+          <a class="dropdown-item" href="/profile/#auctionbutton">Your Auctions</a>
+        </div>
+      </li>
+		      
+		    </li>
+		    <li class="nav-item dropdown">
+		    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Items</a>
+		    <div class="dropdown-menu">
+          <a class="dropdown-item" href="/loadViewItems/">View Items</a>
+          <a class="dropdown-item" href="/additems">Add Item</a>
+        </div>
+		    </li>
+		    <li class="nav-item">
+		      <a class="nav-link" href="/profile/{{ user_id }}"> View Profile </a>
+		    </li>
+		    <li class="nav-item">
+		      <a class="nav-link" href="/loginpage">Log In</a>
+		    </li>
+		    <li class="nav-item">
+		      <a class="nav-link" href="/logout"> Log Out </a>
+		    </li>
+		  </ul>
+		</div>
+	</nav> <!--end of navigation menu-->
+	<br />
+
+	<!--this is the section of the template that is unique to each page-->
+	<div id="content">
+		{% block mainContent %}
+		{% endblock %}
+	</div><!--end of main content area-->
+
+<!--	<div id="footer"><b>eBuy: </b>Where you can buy and sell stuff...</div>-->
+</div> <!--end of container-->
+<script type="text/javascript">
+//when a scroll is detected, execute the function
+window.onscroll = function() {fixedScrolling()};
+
+// get the menu header and the offset position of the navbar
+var menuHeader = document.getElementById("menuHeader");
+var fixedMenuHeader = menuHeader.offsetTop;
+
+//add a class to the menu header when you reach the scroll position and remove it when you leave it
+function fixedScrolling()
+{
+  if(window.pageYOffset > fixedMenuHeader) {menuHeader.classList.add("fixedMenuHeader");}
+  else{menuHeader.classList.remove("fixedMenuHeader");}
+}
+</script>
+</body>
+</html>
