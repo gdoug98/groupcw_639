@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', include('ebuy.urls')),
     path('admin/', admin.site.urls),
+    path('health', lambda request : HttpResponse('okay'))
     
     #path('item_pictures', hotel_image_view, name = 'item_pictures'), #eventually change view
     #path('success', success, name = 'success'),
